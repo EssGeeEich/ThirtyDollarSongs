@@ -1,0 +1,3 @@
+[submodule "Midi-Parser"]
+	path = Midi-Parser
+	url = https://github.com/MStefan99/Midi-Parser
