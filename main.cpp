@@ -9,6 +9,7 @@
 #include "Midi-Parser/lib/Midi.h"
 
 // #define DEBUG_MIDI
+// #define NO_LAG_MITIGATION
 
 inline std::uint64_t readFromBE(std::uint8_t const* data, std::size_t size)
 {
@@ -148,12 +149,18 @@ std::string convertToThirty(Midi const& midi, std::map<std::uint16_t, std::strin
 			std::size_t timeDelta = (timeActions.first - lastActionTime);
 			
 			lastActionTime = timeActions.first;
+			
+#ifndef NO_LAG_MITIGATION
 			// Site lag mitigation
 			timeDelta = timeDelta * 3 / 4;
+#endif
 			
 			if(timeDelta > 1) {
 				--timeDelta;
 				if(output.size() > 0) {
+					// My personal feeling tells me that !stop takes more time than _pause,
+					// but _pause makes the website take much more time to load.
+					// This should give us the best of both worlds.
 					if(timeDelta > 5) {
 						output.append("|!stop@");
 						output.append(std::to_string(timeDelta));
